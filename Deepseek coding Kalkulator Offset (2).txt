@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Offset Lengkap</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+      color: #333;
+      line-height: 1.6;
+    }
+    .container {
+      background: white;
+      padding: 25px;
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      background: #2c3e50;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
+      outline: none;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 150px;
+    }
+    .btn-hitung {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-hitung:hover {
+      background: #219653;
+      transform: translateY(-2px);
+    }
+    .btn-reset {
+      background: #7f8c8d;
+      color: white;
+    }
+    .btn-reset:hover {
+      background: #6c757d;
+      transform: translateY(-2px);
+    }
+    .btn-simpan {
+      background: #3498db;
+      color: white;
+    }
+    .btn-simpan:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+    .btn-pdf {
+      background: #e74c3c;
+      color: white;
+    }
+    .btn-pdf:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+    .result {
+      margin-top: 30px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-left: 5px solid #e67e22;
+      border-radius: 8px;
+      display: none;
+    }
+    .result-item {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #ddd;
+      display: flex;
+      justify-content: space-between;
+    }
+    .result-label {
+      font-weight: 600;
+      color: #2c3e50;
+      min-width: 250px;
+    }
+    .result-value {
+      font-weight: 600;
+      text-align: right;
+    }
+    .total {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e74c3c;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 2px solid #e67e22;
+    }
+    #pdfArea {
+      display: none;
+      padding: 30px;
+    }
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="printArea">
+    <h2>Kalkulator Offset Lengkap</h2>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="orderNo">No Order</label>
+        <input type="text" id="orderNo" placeholder="ORD-001" required>
+      </div>
+      <div class="form-group">
+        <label for="orderDate">Tanggal</label>
+        <input type="date" id="orderDate">
+      </div>
+      <div class="form-group">
+        <label for="namaPemesan">Nama Pemesan</label>
+        <input type="text" id="namaPemesan" placeholder="Nama Customer">
+      </div>
+      <div class="form-group">
+        <label for="produk">Produk</label>
+        <input type="text" id="produk" value="Brosur">
+      </div>
+      <div class="form-group">
+        <label for="ukuranPanjang">Ukuran Panjang (cm)</label>
+        <input type="number" id="ukuranPanjang" value="29.7" step="0.1">
+      </div>
+      <div class="form-group">
+        <label for="ukuranLebar">Ukuran Lebar (cm)</label>
+        <input type="number" id="ukuranLebar" value="21" step="0.1">
+      </div>
+      <div class="form-group">
+        <label for="qty">Quantity</label>
+        <input type="number" id="qty" value="1000">
+      </div>
+      <div class="form-group">
+        <label for="gramasi">Gramasi</label>
+        <select id="gramasi">
+          <option value="100">100 gsm</option>
+          <option value="120">120 gsm</option>
+          <option value="150" selected>150 gsm</option>
+          <option value="190">190 gsm</option>
+          <option value="210">210 gsm</option>
+          <option value="230">230 gsm</option>
+          <option value="260">260 gsm</option>
+          <option value="310">310 gsm</option>
+          <option value="350">350 gsm</option>
+          <option value="400">400 gsm</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="waste">Waste (%)</label>
+        <select id="waste">
+          <option value="10">10%</option>
+          <option value="20" selected>20%</option>
+          <option value="30">30%</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="hargaKg">Harga per Kg (Rp)</label>
+        <input type="number" id="hargaKg" value="15300">
+      </div>
+      <div class="form-group">
+        <label for="plano">Plano</label>
+        <select id="plano">
+          <option value="65x100">65x100 cm</option>
+          <option value="79x109">79x109 cm</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="warna">Warna</label>
+        <select id="warna">
+          <option value="4/0" selected>4/0 (Full color satu sisi)</option>
+          <option value="4/4">4/4 (Full color dua sisi)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="mesinCetak">Mesin Cetak</label>
+        <select id="mesinCetak">
+          <option value="SM52">Heidelberg SM52</option>
+          <option value="SM72">Heidelberg SM72</option>
+          <option value="SM102">Heidelberg SM102</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="finishing1">Finishing 1</label>
+        <select id="finishing1">
+          <option value="">Tanpa Finishing</option>
+          <option value="Laminating Doft">Laminating Doft</option>
+          <option value="Laminating Glossy">Laminating Glossy</option>
+          <option value="Vernis">Vernis</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="finishing2">Finishing 2</label>
+        <select id="finishing2">
+          <option value="">Tanpa Finishing</option>
+          <option value="Pond">Pond</option>
+          <option value="Rell">Rell</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="finishing3">Finishing 3</label>
+        <select id="finishing3">
+          <option value="">Tanpa Finishing</option>
+          <option value="UV Spot">UV Spot</option>
+          <option value="Tali Kur">Tali Kur</option>
+          <option value="Mata Ayam">Mata Ayam</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ppnStatus">PPN 11%</label>
+        <select id="ppnStatus">
+          <option value="ya" selected>Ya</option>
+          <option value="tidak">Tidak</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="margin">Margin Jual (%)</label>
+        <select id="margin">
+          <option value="10">10%</option>
+          <option value="20">20%</option>
+          <option value="30" selected>30%</option>
+          <option value="40">40%</option>
+          <option value="50">50%</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="btn-group">
+      <button class="btn-hitung" onclick="hitung()">Hitung</button>
+      <button class="btn-reset" onclick="resetForm()">Reset</button>
+      <button class="btn-simpan" onclick="simpanData()">Simpan</button>
+      <button class="btn-pdf" onclick="cetakPDF()">Cetak PDF</button>
+    </div>
+    
+    <div id="hasil" class="result"></div>
+  </div>
+
+  <!-- Area khusus untuk PDF -->
+  <div id="pdfArea">
+    <h2 style="text-align:center;color:#2c3e50;margin-bottom:20px;">Laporan Perhitungan Offset</h2>
+    <div id="pdfContent"></div>
+    <p style="text-align:center;color:#7f8c8d;margin-top:30px;">
+      Dokumen dibuat otomatis pada <span id="pdfDate"></span>
+    </p>
+  </div>
+
+  <script>
+    // Set tanggal default
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('orderDate').valueAsDate = new Date();
+    });
+
+    // Fungsi hitung lengkap
+    function hitung() {
+      // Ambil semua nilai input
+      const panjang = parseFloat(document.getElementById("ukuranPanjang").value) || 0;
+      const lebar = parseFloat(document.getElementById("ukuranLebar").value) || 0;
+      const qty = parseInt(document.getElementById("qty").value) || 0;
+      const gramasi = parseInt(document.getElementById("gramasi").value) || 0;
+      const waste = parseInt(document.getElementById("waste").value) || 0;
+      const hargaKg = parseFloat(document.getElementById("hargaKg").value) || 0;
+      const [planoWidth, planoHeight] = document.getElementById("plano").value.split('x').map(Number);
+      const warna = document.getElementById("warna").value;
+      const mesin = document.getElementById("mesinCetak").value;
+      const ppnStatus = document.getElementById("ppnStatus").value;
+      const finishing1 = document.getElementById("finishing1").value;
+      const finishing2 = document.getElementById("finishing2").value;
+      const finishing3 = document.getElementById("finishing3").value;
+      const margin = parseInt(document.getElementById("margin").value);
+
+      // 1. Hitung ukuran cetak (termasuk bleed)
+      const cetakLebar = lebar + 0.6;
+      const cetakPanjang = panjang + 0.6;
+
+      // 2. Hitung jumlah cetakan per plano
+      const fitNormal = Math.floor(planoWidth / cetakLebar) * Math.floor(planoHeight / cetakPanjang);
+      const fitRotasi = Math.floor(planoWidth / cetakPanjang) * Math.floor(planoHeight / cetakLebar);
+      const jumlahPerLembar = Math.max(fitNormal, fitRotasi);
+      const orientasi = fitNormal >= fitRotasi ? "Normal" : "Rotasi 90°";
+
+      // 3. Hitung kebutuhan kertas (termasuk waste)
+      const totalLembar = Math.ceil(qty / jumlahPerLembar * (1 + waste/100));
+
+      // 4. Hitung biaya kertas
+      const beratPlano = (planoWidth * planoHeight * gramasi) / 10000; // dalam kg
+      const hargaPerLembar = (beratPlano * hargaKg) / 1000;
+      const biayaKertas = Math.ceil(hargaPerLembar * totalLembar);
+
+      // 5. Biaya cetak berdasarkan mesin
+      let biayaCetak = 0;
+      if (mesin === 'SM52') biayaCetak = warna === '4/0' ? 1000000 : 1500000;
+      else if (mesin === 'SM72') biayaCetak = warna === '4/0' ? 1500000 : 2000000;
+      else if (mesin === 'SM102') biayaCetak = warna === '4/0' ? 2000000 : 2500000;
+
+      // 6. Biaya film dan plat
+      let biayaFilmPlat = 0;
+      if (mesin === 'SM52') biayaFilmPlat = 200000;
+      else if (mesin === 'SM72') biayaFilmPlat = 400000;
+      else if (mesin === 'SM102') biayaFilmPlat = 800000;
+
+      // 7. Biaya finishing
+      const hitungFinishing = (jenis) => {
+        const luas = panjang * lebar;
+        if (jenis === "Laminating Doft" || jenis === "Laminating Glossy") return qty * (0.25 * luas);
+        if (jenis === "Vernis") return qty * (0.15 * luas);
+        if (jenis === "Pond") return qty < 1000 ? 300000 : qty * 100;
+        if (jenis === "Rell") return qty < 1000 ? 200000 : qty * 100;
+        if (jenis === "UV Spot") return qty < 1000 ? 500000 : qty * 750;
+        if (jenis === "Tali Kur") return qty < 1000 ? 500000 : qty * 500;
+        if (jenis === "Mata Ayam") return qty < 1000 ? 200000 : qty * 100;
+        return 0;
+      };
+
+      const biayaFinishing = hitungFinishing(finishing1) + hitungFinishing(finishing2) + hitungFinishing(finishing3);
+
+      // 8. Total biaya
+      let subtotal = biayaKertas + biayaCetak + biayaFilmPlat + biayaFinishing;
+      let ppn = ppnStatus === 'ya' ? Math.ceil(subtotal * 0.11) : 0;
+      const total = subtotal + ppn;
+      const hargaSatuan = Math.ceil(total / qty);
+      const hargaJual = Math.ceil(hargaSatuan * (1 + margin / 100));
+
+      // Format hasil untuk ditampilkan
+      const hasilHTML = `
+        <div class="result-item">
+          <span class="result-label">Ukuran Cetak:</span>
+          <span class="result-value">${cetakPanjang.toFixed(1)} × ${cetakLebar.toFixed(1)} cm</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Plano:</span>
+          <span class="result-value">${planoWidth} × ${planoHeight} cm</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Orientasi:</span>
+          <span class="result-value">${orientasi}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Jumlah per Lembar:</span>
+          <span class="result-value">${jumlahPerLembar}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Total Lembar Dibutuhkan:</span>
+          <span class="result-value">${totalLembar} (termasuk waste ${waste}%)</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Gramasi:</span>
+          <span class="result-value">${gramasi} gsm</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Biaya Kertas:</span>
+          <span class="result-value">Rp ${biayaKertas.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Biaya Cetak:</span>
+          <span class="result-value">Rp ${biayaCetak.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Biaya Film & Plat:</span>
+          <span class="result-value">Rp ${biayaFilmPlat.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Biaya Finishing:</span>
+          <span class="result-value">Rp ${biayaFinishing.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Subtotal:</span>
+          <span class="result-value">Rp ${subtotal.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">PPN 11%:</span>
+          <span class="result-value">Rp ${ppn.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="total">
+          <span class="result-label">TOTAL BIAYA:</span>
+          <span class="result-value">Rp ${total.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Harga Satuan:</span>
+          <span class="result-value">Rp ${hargaSatuan.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="total">
+          <span class="result-label">HARGA JUAL (Margin ${margin}%):</span>
+          <span class="result-value">Rp ${hargaJual.toLocaleString('id-ID')}</span>
+        </div>
+      `;
+
+      // Tampilkan hasil
+      document.getElementById("hasil").innerHTML = hasilHTML;
+      document.getElementById("hasil").style.display = 'block';
+
+      // Siapkan konten PDF
+      document.getElementById("pdfContent").innerHTML = `
+        <p><strong>No Order:</strong> ${document.getElementById("orderNo").value || '-'}</p>
+        <p><strong>Tanggal:</strong> ${document.getElementById("orderDate").value || '-'}</p>
+        <p><strong>Nama Pemesan:</strong> ${document.getElementById("namaPemesan").value || '-'}</p>
+        ${hasilHTML}
+      `;
+      document.getElementById("pdfDate").textContent = new Date().toLocaleString('id-ID');
+    }
+
+    // Fungsi simpan data
+    function simpanData() {
+      try {
+        const orderNo = document.getElementById("orderNo").value.trim();
+        if (!orderNo) {
+          alert("Nomor Order wajib diisi!");
+          return;
+        }
+        
+        const data = {
+          tanggal: document.getElementById("orderDate").value,
+          namaPemesan: document.getElementById("namaPemesan").value,
+          produk: document.getElementById("produk").value,
+          ukuranPanjang: document.getElementById("ukuranPanjang").value,
+          ukuranLebar: document.getElementById("ukuranLebar").value,
+          qty: document.getElementById("qty").value,
+          gramasi: document.getElementById("gramasi").value,
+          waste: document.getElementById("waste").value,
+          hargaKg: document.getElementById("hargaKg").value,
+          plano: document.getElementById("plano").value,
+          warna: document.getElementById("warna").value,
+          mesinCetak: document.getElementById("mesinCetak").value,
+          finishing1: document.getElementById("finishing1").value,
+          finishing2: document.getElementById("finishing2").value,
+          finishing3: document.getElementById("finishing3").value,
+          ppnStatus: document.getElementById("ppnStatus").value,
+          margin: document.getElementById("margin").value
+        };
+        
+        localStorage.setItem(`order_${orderNo}`, JSON.stringify(data));
+        alert("Data berhasil disimpan!");
+        
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Gagal menyimpan data!");
+      }
+    }
+
+    // Fungsi reset form
+    function resetForm() {
+      document.querySelectorAll("input, select").forEach(el => {
+        if (el.id === "orderNo" || el.id === "orderDate") return;
+        if (el.type === "date") el.valueAsDate = new Date();
+        else if (el.type === "number" || el.tagName === "SELECT" || el.type === "text") 
+          el.value = el.defaultValue || "";
+      });
+      document.getElementById("hasil").style.display = "none";
+    }
+
+    // Fungsi cetak PDF
+    async function cetakPDF() {
+      if (document.getElementById("hasil").style.display !== "block") {
+        alert("Silakan hitung terlebih dahulu!");
+        return;
+      }
+      
+      try {
+        const element = document.getElementById("pdfArea");
+        const opt = {
+          margin: 15,
+          filename: `Laporan_Offset_${document.getElementById("orderNo").value || new Date().getTime()}.pdf`,
+          html2canvas: { 
+            scale: 2,
+            logging: true,
+            useCORS: true
+          },
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait'
+          }
+        };
+        
+        // Tampilkan sementara
+        element.style.display = 'block';
+        
+        // Tunggu render
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Generate PDF
+        await html2pdf().set(opt).from(element).save();
+        
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Gagal membuat PDF. Silakan coba lagi atau gunakan browser lain.");
+      } finally {
+        document.getElementById("pdfArea").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
